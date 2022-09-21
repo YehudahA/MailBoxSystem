@@ -7,7 +7,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.*.json" Condition=" Exists('appsettings.json') ">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.secret.json" CopyToPublishDirectory="Never" Condition=" Exists('appsettings.secret.json') " />
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" Condition=" Exists('appsettings.Development.json') " />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\SQL Sctipts\" />
   </ItemGroup>
 
 </Project>
