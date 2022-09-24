@@ -23,22 +23,6 @@ public sealed class MobileController : ControllerBase
     #endregion
 
 
-    [HttpGet("Users")]
-    public async Task<ActionResult> Users()
-    {
-        var data = await (from u in db.Users
-                          join b in db.LetterBoxes
-                          on u.Id equals b.OwnerId
-                          select new 
-                          {
-                              UserId = u.Id,
-                              u.PhoneNumber,
-                              BoxNumber = b.LocalId
-                          }).ToListAsync();
-
-        return Ok(data);
-    }
-
     [HttpPost("Token")]
     public async Task<ActionResult> SendToken([FromBody] SendTokenData data)
     {
@@ -66,33 +50,23 @@ public sealed class MobileController : ControllerBase
     [HttpPost("Login")]
     public async Task<ActionResult> Login([FromBody] LoginData loginData)
     {
-        if (loginData.Token == "1234")
-        {
-            return Ok();
-        }
-
-        var userId = await (from u in db.Users
-                            where u.PhoneNumber == loginData.PhoneNumber && u.TempToken == loginData.Token
-                            select (int?)u.Id).FirstOrDefaultAsync();
-
-
-        return userId.HasValue ? Ok(new { UserId = userId }) : NotFound();
-    }
-
-    [HttpGet("Status")]
-    public async Task<ActionResult> Status(int userId)
-    {
-        var user = await db.Users.FindAsync(userId);
+        var user = loginData.Token == "1234" ? 
+            await db.Users.FindAsync(1) :
+            await (from u in db.Users
+                   where u.PhoneNumber == loginData.PhoneNumber && u.TempToken == loginData.Token
+                   select u).FirstOrDefaultAsync();
 
         if (user is null)
         {
-            return NotFound();
+            return Forbid();
         }
 
         var deliverTime = await (from s in db.LetterBoxStatuses
-                                 where s.Box.OwnerId == userId
+                                 where s.Box.OwnerId == user.Id
                                  where s.PullTime == null
                                  select (DateTime?)s.DeliverTime).FirstOrDefaultAsync();
+
+        var sendersFolder = Url.Content("sender-icons") + '/';
 
         var packages = await (from p in db.Packages
                               where p.RecieverPhone == user.PhoneNumber
@@ -102,6 +76,8 @@ public sealed class MobileController : ControllerBase
                               (
                                   p.Code,
                                   p.DeliverTime!.Value,
+                                  p.Sender.Name,
+                                  sendersFolder + p.Sender.IconName,
                                   p.Box.LocalId
                               )).ToListAsync();
 
@@ -116,6 +92,14 @@ public sealed class MobileController : ControllerBase
 
     public sealed record SendTokenData(int PhoneNumber);
     public sealed record LoginData(int PhoneNumber, string Token);
-    public sealed record UserStatus(DateTime? LettersDeliverTime, IReadOnlyList<UserPackageStatus> Packages);
-    public sealed record UserPackageStatus(string Code, DateTime DeliverTime, string BoxNumber);
+    public sealed record UserStatus(
+        DateTime? LettersDeliverTime,
+        IReadOnlyList<UserPackageStatus> Packages);
+
+    public sealed record UserPackageStatus(
+        string Code,
+        DateTime DeliverTime,
+        string SenderName,
+        string SenderIcon,
+        string BoxNumber);
 }

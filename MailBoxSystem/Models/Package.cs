@@ -7,7 +7,7 @@ public class Package
     public int Id { get; set; }
     public string Code { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
-    public string SenderName { get; set; }
+    public int SenderId { get; set; }
 
     public string RecieverName { get; set; }
     public int RecieverPhone { get; set; }
@@ -22,4 +22,5 @@ public class Package
     public DateTime? PullTime { get; set; }
 
     public virtual PackageBox Box { get; set; }
+    public virtual PackageSender Sender { get; set; }
 }

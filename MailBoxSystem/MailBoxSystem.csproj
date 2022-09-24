@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\SQL Sctipts\" />
+    <Folder Include="wwwroot\sender-icons\" />
   </ItemGroup>
 
 </Project>

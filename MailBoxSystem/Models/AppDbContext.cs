@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<LetterBox> LetterBoxes { get; set; }
     public DbSet<PackageBox> PackageBoxes { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<PackageSender> PackageSenders { get; set; }
 
     public DbSet<LetterBoxStatus> LetterBoxStatuses { get; set; }
     public DbSet<Package> Packages { get; set; }
@@ -70,12 +71,19 @@ public class AppDbContext : DbContext
             DeliverTime = DateTime.Now.AddDays(-1),
         });
 
+        modelBuilder.Entity<PackageSender>().HasData(new PackageSender()
+        {
+            Id = 1,
+            Name = "Ali Express",
+            IconName = "aliexpress.jpg"
+        });
+
         modelBuilder.Entity<Package>().HasData(new Package()
         {
             Id = 1,
             BoxId = packBox.Id,
             Code = "R1234",
-            SenderName = "AliExpress",
+            SenderId = 1,
             RecieverName = "יהודה",
             RecieverPhone = 0535481815,
             DeliverTime = DateTime.Now.AddHours(-1),
