@@ -41,16 +41,16 @@ public sealed class MobileController : ControllerBase
         var token = Random.Shared.Next(0, 9999);
 
         await smsService.SendAsync(data.PhoneNumber.ToString().PadLeft(10, '0'), token.ToString());
-        user.TempToken = token.ToString();
+        user.TempToken = token;
         await db.SaveChangesAsync();
 
         return Ok();
     }
 
-    [HttpPost("Authenticate")]
-    public async Task<ActionResult> Authenticate([FromBody] LoginData loginData)
+    [HttpPost("UserData")]
+    public async Task<ActionResult> UserData([FromBody] LoginData loginData)
     {
-        var user = loginData.Token == "1234" ? 
+        var user = loginData.Token == 1234 ? 
             await db.Users.FindAsync(1) :
             await (from u in db.Users
                    where u.PhoneNumber == loginData.PhoneNumber && u.TempToken == loginData.Token
@@ -91,7 +91,7 @@ public sealed class MobileController : ControllerBase
     }
 
     public sealed record SendTokenData(int PhoneNumber);
-    public sealed record LoginData(int PhoneNumber, string Token);
+    public sealed record LoginData(int PhoneNumber, int Token);
     public sealed record UserStatus(
         DateTime? LettersDeliverTime,
         IReadOnlyList<UserPackageStatus> Packages);
