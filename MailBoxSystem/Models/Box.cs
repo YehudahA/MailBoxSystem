@@ -5,7 +5,7 @@ namespace MailBoxSystem.Models;
 public abstract class Box
 {
     public int Id { get; set; }
-    public string LocalId { get; set; }
+    public int LocalNumber { get; set; }
 }
 
 public class LetterBox : Box

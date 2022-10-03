@@ -53,14 +53,14 @@ public class AppDbContext : DbContext
             OwnerId = user.Id,
             Line1 = "אלטמן",
             Line2 = "קומה 1",
-            LocalId = "01"
+            LocalNumber = 1
         });
 
         var packBox = new PackageBox()
         {
             Id = 2,
             Size = PackBoxSize.Medium,
-            LocalId = "01"
+            LocalNumber = 2
         };
         modelBuilder.Entity<PackageBox>().HasData(packBox);
 

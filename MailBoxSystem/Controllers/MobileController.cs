@@ -47,8 +47,8 @@ public sealed class MobileController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("Login")]
-    public async Task<ActionResult> Login([FromBody] LoginData loginData)
+    [HttpPost("Authenticate")]
+    public async Task<ActionResult> Authenticate([FromBody] LoginData loginData)
     {
         var user = loginData.Token == "1234" ? 
             await db.Users.FindAsync(1) :
@@ -78,7 +78,7 @@ public sealed class MobileController : ControllerBase
                                   p.DeliverTime!.Value,
                                   p.Sender.Name,
                                   sendersFolder + p.Sender.IconName,
-                                  p.Box.LocalId
+                                  p.Box.LocalNumber
                               )).ToListAsync();
 
         return Ok(new UserStatus(deliverTime, packages));
@@ -101,5 +101,5 @@ public sealed class MobileController : ControllerBase
         DateTime DeliverTime,
         string SenderName,
         string SenderIcon,
-        string BoxNumber);
+        int BoxNumber);
 }
