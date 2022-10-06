@@ -13,6 +13,8 @@ builder.Host.ConfigureAppConfiguration(config =>
 
 var services = builder.Services;
 services.AddControllers();
+services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
@@ -36,6 +38,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.UseCors();
 
 app.UseAuthorization();
 
