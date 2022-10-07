@@ -50,7 +50,7 @@ public sealed class MobileController : ControllerBase
     [HttpPost("UserData")]
     public async Task<ActionResult> UserData([FromBody] LoginData loginData)
     {
-        var user = loginData.Token == 1234 ? 
+        var user = loginData.Token == 1234 ?
             await db.Users.FindAsync(1) :
             await (from u in db.Users
                    where u.PhoneNumber == loginData.PhoneNumber && u.TempToken == loginData.Token
@@ -61,10 +61,16 @@ public sealed class MobileController : ControllerBase
             return Forbid();
         }
 
-        var deliverTime = await (from s in db.LetterBoxStatuses
-                                 where s.Box.OwnerId == user.Id
-                                 where s.PullTime == null
-                                 select (DateTime?)s.DeliverTime).FirstOrDefaultAsync();
+        var boxStatus = await (from b in db.LetterBoxes
+                               select new
+                               {
+                                   DeliverTime = (from s in db.LetterBoxStatuses
+                                                  where s.BoxId == b.Id
+                                                  where s.PullTime == null
+                                                  orderby s.Id descending
+                                                  select (DateTime?)s.DeliverTime).FirstOrDefault(),
+                                   b.LocalNumber
+                               }).FirstAsync();
 
         var sendersFolder = Url.Content("sender-icons") + '/';
 
@@ -81,7 +87,7 @@ public sealed class MobileController : ControllerBase
                                   p.Box.LocalNumber
                               )).ToListAsync();
 
-        return Ok(new UserStatus(deliverTime, packages));
+        return Ok(new UserStatus(boxStatus.LocalNumber, boxStatus.DeliverTime, packages));
     }
 
     [HttpPost("Open")]
@@ -93,6 +99,7 @@ public sealed class MobileController : ControllerBase
     public sealed record SendTokenData(int PhoneNumber);
     public sealed record LoginData(int PhoneNumber, int Token);
     public sealed record UserStatus(
+        int BoxNumber,
         DateTime? LettersDeliverTime,
         IReadOnlyList<UserPackageStatus> Packages);
 
