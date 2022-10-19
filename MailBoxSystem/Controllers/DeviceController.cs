@@ -45,6 +45,18 @@ public sealed class DeviceController : ControllerBase
         return exists ? Ok() : NotFound();
     }
 
+    [HttpGet("CanDeliver/{code}")]
+    public async Task<ActionResult> CanDeliverPack(string code)
+    {
+        var exists = await (from pack in db.Packages
+                            join u in db.Users on pack.RecieverPhone equals u.PhoneNumber
+                            where pack.Code == code
+                            where !pack.DeliverTime.HasValue
+                            select 1).AnyAsync();
+        
+        return exists ? Ok() : NotFound();
+    }
+
     [HttpPost("DeliverPack")]
     public async Task<ActionResult> DeliverPack(string code, int boxNumber)
     {
@@ -59,6 +71,34 @@ public sealed class DeviceController : ControllerBase
         pack.BoxId = boxId;
         pack.DeliverTime = DateTime.Now;
 
+        await db.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpGet("CanPullPack/{code}")]
+    public async Task<ActionResult> CanPullPack(string code)
+    {
+        var exists = await (from pack in db.Packages
+                            where pack.Code == code
+                            where pack.DeliverTime.HasValue
+                            where !pack.PullTime.HasValue
+                            select 1).AnyAsync();
+
+        return exists ? Ok() : NotFound();
+    }
+
+    [HttpPost("PullPack/{code}")]
+    public async Task<ActionResult> PullPack(string code)
+    {
+        var pack = await (from p in db.Packages
+                            where p.Code == code
+                            where p.DeliverTime.HasValue
+                            where !p.PullTime.HasValue
+                            select p).FirstOrDefaultAsync();
+
+        if(pack == null) return NotFound();
+
+        pack.PullTime = DateTime.Now;
         await db.SaveChangesAsync();
         return Ok();
     }
