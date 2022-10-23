@@ -91,9 +91,9 @@ public sealed class MobileController : ControllerBase
     }
 
     [HttpPost("Open")]
-    public async Task OpenBox(string boxNumber)
+    public void OpenBox(int boxNumber, [FromServices] IDeviceHubService deviceHubService)
     {
-        await Task.CompletedTask;
+        deviceHubService.OpenDoor(boxNumber);
     }
 
     public sealed record SendTokenData(int PhoneNumber);

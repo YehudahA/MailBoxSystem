@@ -24,7 +24,7 @@ services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 services.AddHttpClient<ISmsService, SmsService>();
-
+services.AddSingleton<IDeviceHubService, DeviceHubService>();
 
 var app = builder.Build();
 
@@ -36,6 +36,8 @@ var app = builder.Build();
 }
 
 app.UseHttpsRedirection();
+
+app.UseWebSockets();
 
 app.UseStaticFiles();
 
